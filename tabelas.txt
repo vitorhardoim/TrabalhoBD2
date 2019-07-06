@@ -8,9 +8,7 @@ PRIMARY KEY (cep)
 
 DROP TABLE IF EXISTS zona_eleitoral CASCADE; 
 CREATE TABLE IF NOT EXISTS zona_eleitoral ( 
-codigo int NOT NULL, 
-cep int NOT NULL REFERENCES localidade(cep), 
-endereco varchar(255) NOT NULL, 
+codigo int NOT NULL,  
 PRIMARY KEY (codigo)
 );
 
@@ -20,7 +18,7 @@ n_titulo int NOT NULL,
 nome varchar(255) NOT NULL, 
 data_nascimento date NOT NULL, 
 cep int NOT NULL REFERENCES localidade(cep), 
-endereco varchar(255) NOT NULL, 
+endereco int NOT NULL, 
 sexo varchar(64) NOT NULL,
 codigo_zona int NOT NULL REFERENCES zona_eleitoral(codigo), 
 esta_ativo int NOT NULL DEFAULT '1', 
@@ -101,6 +99,7 @@ DROP TABLE IF EXISTS local_zona_eleicao CASCADE;
 CREATE TABLE IF NOT EXISTS local_zona_eleicao(
 codigo_zona int NOT NULL REFERENCES zona_eleitoral(codigo),
 cep int NOT NULL REFERENCES localidade(cep),
+endereco int NOT NULL,
 id_eleicoes int NOT NULL REFERENCES eleicoes(id_eleicoes),
 PRIMARY KEY(codigo_zona, cep, id_eleicoes)
 );
