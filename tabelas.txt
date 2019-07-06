@@ -89,17 +89,6 @@ n_titulo_ajudante int NOT NULL REFERENCES eleitor(n_titulo),
 PRIMARY KEY (codigo_zona,n_secao,n_titulo_ajudante)
 );
 
-DROP TABLE IF EXISTS candidatura CASCADE; 
-CREATE TABLE IF NOT EXISTS candidatura ( 
-id_candidatura int NOT NULL,
-qtd int DEFAULT NULL, 
-codigo_zona_eleitoral int NOT NULL REFERENCES zona_eleitoral(codigo), 
-id_eleicoes int NOT NULL REFERENCES eleicoes(id_eleicoes), 
-n_titulo_candidato int NOT NULL REFERENCES candidato(n_titulo),
-id_afiliacao int NOT NULL REFERENCES afiliacao(id_afiliacao),
-PRIMARY KEY (id_candidatura)
-);
-
 DROP TABLE IF EXISTS voto_eleitor CASCADE; 
 CREATE TABLE IF NOT EXISTS voto_eleitor ( 
 n_eleitor int NOT NULL REFERENCES eleitor(n_titulo), 
@@ -118,11 +107,23 @@ PRIMARY KEY(codigo_zona, cep, id_eleicoes)
 
 DROP TABLE IF EXISTS afiliacao CASCADE;
 CREATE TABLE IF NOT EXISTS afiliacao(
+id_afiliacao SERIAL UNIQUE,
 n_titulo int NOT NULL REFERENCES candidato(n_titulo),
 id_partido int NOT NULL REFERENCES partido(id_partido),
 data_inicio timestamp NOT NULL,
 data_fim timestamp,
 PRIMARY KEY(n_titulo, id_partido, data_inicio)
+);
+
+DROP TABLE IF EXISTS candidatura CASCADE; 
+CREATE TABLE IF NOT EXISTS candidatura ( 
+id_candidatura int NOT NULL,
+qtd int DEFAULT NULL, 
+codigo_zona_eleitoral int NOT NULL REFERENCES zona_eleitoral(codigo), 
+id_eleicoes int NOT NULL REFERENCES eleicoes(id_eleicoes), 
+n_titulo_candidato int NOT NULL REFERENCES candidato(n_titulo),
+id_afiliacao int NOT NULL REFERENCES afiliacao(id_afiliacao),
+PRIMARY KEY (id_candidatura)
 );
 
 DROP TABLE IF EXISTS participacao_eleicao CASCADE;
