@@ -19,7 +19,7 @@ nome varchar(255) NOT NULL,
 data_nascimento date NOT NULL, 
 cep int NOT NULL REFERENCES localidade(cep), 
 endereco int NOT NULL, 
-sexo varchar(64) NOT NULL,
+sexo varchar(1) NOT NULL,
 codigo_zona int NOT NULL REFERENCES zona_eleitoral(codigo), 
 esta_ativo int NOT NULL DEFAULT '1', 
 PRIMARY KEY (n_titulo)
@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS cargo (
 id_cargo SERIAL, 
 titulo varchar(100) NOT NULL, 
 esfera varchar(10) NOT NULL, 
+n_vagas int NOT NULL,
 PRIMARY KEY (id_cargo) 
 );
 
@@ -92,7 +93,7 @@ CREATE TABLE IF NOT EXISTS voto_eleitor (
 n_eleitor int NOT NULL REFERENCES eleitor(n_titulo), 
 votou int NOT NULL DEFAULT '0', 
 id_eleicoes int NOT NULL REFERENCES eleicoes(id_eleicoes), 
-PRIMARY KEY (n_eleitor)
+PRIMARY KEY (n_eleitor, id_eleicoes)
 );
 
 DROP TABLE IF EXISTS local_zona_eleicao CASCADE;
