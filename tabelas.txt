@@ -134,3 +134,11 @@ id_cargo int NOT NULL REFERENCES cargo(id_cargo),
 id_partido int NOT NULL REFERENCES partido(id_partido),
 PRIMARY KEY(id_candidatura, id_candidato, id_cargo, id_partido)
 );
+
+DROP TABLE IF EXISTS vagas CASCADE;
+CREATE TABLE IF NOT EXISTS vagas(
+  id_vagas SERIAL,
+  id_cargo int not null REFERENCES cargo(id_cargo),
+  id_eleicoes int not null REFERENCES eleicoes(id_eleicoes),
+  PRIMARY KEY(id_vagas)
+);
