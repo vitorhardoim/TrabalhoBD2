@@ -226,4 +226,110 @@ END;
 $$ LANGUAGE 'plpgsql';
 
 select rel_homem_mulher(2015, 2019);
+
 -- Função 1
+
+
+
+-- Assert 1
+
+CREATE OR REPLACE FUNCTION contabilizacao_votos_zona_just() RETURNS trigger as $$
+DECLARE
+	zona_atual int;
+	eleicao_atual int;
+	qtd_pessoas_zona int;
+	qtd_justificativas int;
+	qtd_votos int;
+BEGIN
+	-- eleicao atual da justificativa nova
+	eleicao_atual = new.id_eleicoes;
+	-- zona atual da justificativa nova
+	SELECT codigo_zona INTO zona_atual 
+	FROM eleitor WHERE new.n_titulo = eleitor.n_titulo;
+	-- qtd de pessoas cadastradas naquela zona eleitoral
+	SELECT COUNT(n_titulo) INTO qtd_pessoas_zona FROM eleitor WHERE eleitor.codigo_zona = zona_atual;
+	-- qtd de pessoas que justificaram naquela zona
+	SELECT COUNT(id_justificativa) INTO qtd_justificativas 
+	FROM justificativa INNER JOIN eleitor ON justificativa.n_titulo = eleitor.n_titulo 
+	WHERE codigo_zona = zona_atual AND id_eleicoes = eleicao_atual;
+	-- qtd de pessoas que votaram naquela zona
+	SELECT COUNT(*) INTO qtd_votos 
+	FROM voto_eleitor INNER JOIN eleitor ON voto_eleitor.n_eleitor = eleitor.n_titulo 
+	WHERE codigo_zona = zona_atual AND id_eleicoes = eleicao_atual AND votou = 1;
+	-- teste para saber se existem mais pessoas que o possível dentro do registro daquela zona
+	
+	RAISE NOTICE 'JUSTIFICATIVA';
+	RAISE NOTICE 'zona %, eleicao %', zona_atual, eleicao_atual;
+	RAISE NOTICE 'qtd de pessoas na zona %', qtd_pessoas_zona;
+	RAISE NOTICE 'justificativas % e votos %', qtd_justificativas, qtd_votos;
+	
+	IF (qtd_justificativas + qtd_votos) >= qtd_pessoas_zona THEN
+		RAISE EXCEPTION 'Você está tentando inserir mais pessoas do que a quantidade existente nessa zona eleitoral';
+		RETURN null;
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION contabilizacao_votos_zona() RETURNS trigger as $$
+DECLARE
+	zona_atual int;
+	eleicao_atual int;
+	qtd_pessoas_zona int;
+	qtd_justificativas int;
+	qtd_votos int;
+BEGIN
+	-- eleicao atual do voto novo
+	eleicao_atual = new.id_eleicoes;
+	-- zona atual da justificativa nova
+	SELECT codigo_zona INTO zona_atual 
+	FROM eleitor WHERE new.n_eleitor = eleitor.n_titulo;
+	-- qtd de pessoas cadastradas naquela zona eleitoral
+	SELECT COUNT(n_titulo) INTO qtd_pessoas_zona FROM eleitor WHERE eleitor.codigo_zona = zona_atual;
+	-- qtd de pessoas que justificaram naquela zona
+	SELECT COUNT(id_justificativa) INTO qtd_justificativas 
+	FROM justificativa INNER JOIN eleitor ON justificativa.n_titulo = eleitor.n_titulo 
+	WHERE codigo_zona = zona_atual AND id_eleicoes = eleicao_atual;
+	-- qtd de pessoas que votaram naquela zona
+	SELECT COUNT(*) INTO qtd_votos 
+	FROM voto_eleitor INNER JOIN eleitor ON voto_eleitor.n_eleitor = eleitor.n_titulo 
+	WHERE codigo_zona = zona_atual AND id_eleicoes = eleicao_atual AND votou = 1;
+	-- teste para saber se existem mais pessoas que o possível dentro do registro daquela zona
+
+	RAISE NOTICE 'VOTO';
+	RAISE NOTICE 'zona %, eleicao %', zona_atual, eleicao_atual;
+	RAISE NOTICE 'qtd de pessoas na zona %', qtd_pessoas_zona;
+	RAISE NOTICE 'justificativas % e votos %', qtd_justificativas, qtd_votos;
+	
+	IF (qtd_justificativas + qtd_votos) >= qtd_pessoas_zona THEN
+		RAISE EXCEPTION 'Você está tentando inserir mais pessoas do que a quantidade existente nessa zona eleitoral';
+		RETURN null;
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER contabilizacao_votos_just BEFORE INSERT OR UPDATE ON justificativa FOR EACH ROW EXECUTE PROCEDURE contabilizacao_votos_zona_just();
+CREATE TRIGGER contabilizacao_votos BEFORE INSERT OR UPDATE ON voto_eleitor FOR EACH ROW EXECUTE PROCEDURE contabilizacao_votos_zona();
+
+INSERT INTO localidade (cep, municipio, UF)
+VALUES (24320000, 'Niterói', 'RJ'), (24230000, 'Niterói', 'RJ'), (24220000, 'Niterói', 'RJ'), (24020000, 'Niterói', 'RJ');
+
+INSERT INTO zona_eleitoral (codigo)
+VALUES (001), (003), (005);
+
+INSERT INTO eleitor ( n_titulo, nome, data_nascimento, cep, endereco, sexo, codigo_zona, esta_ativo)
+VALUES  
+( 123456, 'Antonio do Nascimento', '1968-03-07', 24020000, '55', 'M', 001, 1),
+( 234567, 'Marta Barbosa', '1985-12-09', 24220000, '13', 'F', 001, 1);
+
+INSERT INTO eleicoes(id_eleicoes, data_eleicao, turno) 
+VALUES (DEFAULT, '2019-06-06 19:10:25-07', 1);
+
+INSERT INTO justificativa VALUES(DEFAULT, 123456, 'justificativa', 1);
+INSERT INTO voto_eleitor VALUES(234567, 1, 1);
+INSERT INTO justificativa VALUES(DEFAULT, 234567, 'justificativa de pessoa que ja votou', 1);
+INSERT INTO voto_eleitor VALUES(123456, 1, 1);
+
+-- Assert 1
+
