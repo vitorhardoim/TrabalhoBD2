@@ -171,20 +171,20 @@ VALUES (DEFAULT, 'Prefeito', 'a', 10);
 
 INSERT INTO candidato (n_titulo, numero, apelido, id_cargo, id_partido)
 VALUES 
-(123456, 30, 'antonio', 5, 4),
-(234567, 50, 'marta', 5, 5),
-(345678, 60, ‘rita’, 5, 4),
-(456789, 70, 'vitor', 5, 4),
-(567891, 80, 'mariana', 5, 4);
+(123456, 30, 'antonio', 1, 1),
+(234567, 50, 'marta', 1, 2),
+(345678, 60, 'rita', 1, 1),
+(456789, 70, 'vitor', 1, 1),
+(567891, 80, 'mariana', 1, 1);
 
 
 INSERT INTO afiliacao (id_afiliacao, n_titulo, id_partido, data_inicio, data_fim)
 VALUES 
-(DEFAULT, 123456, 4, '2015-2-11 19:10:25-07', null),
-(DEFAULT, 234567, 5, '2018-2-11 19:10:25-07', '2019-2-11 19:10:25-07'),
-(DEFAULT, 345678, 4, '2015-2-11 19:10:25-07', '2017-2-11 19:10:25-07'), 
-(DEFAULT, 456789, 4, '2016-2-11 19:10:25-07', '2018-2-11 19:10:25-07'),
-(DEFAULT, 567891, 4, '2015-2-11 19:10:25-07', '2017-2-11 19:10:25-07');
+(DEFAULT, 123456, 1, '2015-2-11 19:10:25-07', null),
+(DEFAULT, 234567, 2, '2018-2-11 19:10:25-07', '2019-2-11 19:10:25-07'),
+(DEFAULT, 345678, 1, '2015-2-11 19:10:25-07', '2017-2-11 19:10:25-07'), 
+(DEFAULT, 456789, 1, '2016-2-11 19:10:25-07', '2018-2-11 19:10:25-07'),
+(DEFAULT, 567891, 1, '2015-2-11 19:10:25-07', '2017-2-11 19:10:25-07');
 
 CREATE OR REPLACE FUNCTION rel_homem_mulher(ano_inicio int, ano_fim int) 
 RETURNS TABLE(
