@@ -185,3 +185,45 @@ VALUES
 (DEFAULT, 345678, 4, '2015-2-11 19:10:25-07', '2017-2-11 19:10:25-07'), 
 (DEFAULT, 456789, 4, '2016-2-11 19:10:25-07', '2018-2-11 19:10:25-07'),
 (DEFAULT, 567891, 4, '2015-2-11 19:10:25-07', '2017-2-11 19:10:25-07');
+
+CREATE OR REPLACE FUNCTION rel_homem_mulher(ano_inicio int, ano_fim int) 
+RETURNS TABLE(
+	partido_nome varchar(255),
+	anos_rel int[],
+	qtds_rel int[][]
+) AS $$
+DECLARE
+	cur1 CURSOR FOR SELECT DISTINCT id_partido FROM afiliacao WHERE (ano_inicio <= EXTRACT(YEAR FROM data_inicio)) AND (ano_fim >= EXTRACT(YEAR FROM data_fim) OR data_fim IS null);
+	qtd_h float;
+	qtd_m float;
+	porc_h int;
+	anos int[];
+	qtds int[][];
+BEGIN
+IF ano_inicio > ano_fim THEN
+	RAISE EXCEPTION 'Intervalo inválido';
+	RETURN;
+END IF;
+
+FOR r1 IN cur1 LOOP
+	SELECT DISTINCT sigla INTO partido_nome FROM partido WHERE r1.id_partido = partido.id_partido;
+	qtds = '{}';
+	anos = '{}';
+	FOR i IN ano_inicio..ano_fim LOOP
+		SELECT COUNT(*) INTO qtd_h FROM eleitor INNER JOIN afiliacao ON eleitor.n_titulo = afiliacao.n_titulo WHERE id_partido = r1.id_partido AND sexo = 'M' AND (EXTRACT(YEAR FROM data_inicio) <= i) AND (EXTRACT(YEAR FROM data_fim) >= i OR data_fim IS null);
+		SELECT COUNT(*) INTO qtd_m FROM eleitor INNER JOIN afiliacao ON eleitor.n_titulo = afiliacao.n_titulo WHERE id_partido = r1.id_partido AND sexo = 'F' AND (EXTRACT(YEAR FROM data_inicio) <= i) AND (EXTRACT(YEAR FROM data_fim) >= i OR data_fim IS null);
+		IF(qtd_h+qtd_m > 0) THEN
+			anos = anos || i;
+			porc_h = (qtd_h / (qtd_h + qtd_m))*100;
+			qtds = qtds || ARRAY[[porc_h, 100-porc_h]];
+		END IF;
+	END LOOP;
+	anos_rel = anos;
+	qtds_rel = qtds;
+RETURN NEXT;
+END LOOP;
+END; 
+$$ LANGUAGE 'plpgsql';
+
+select rel_homem_mulher(2015, 2019);
+-- Função 1
