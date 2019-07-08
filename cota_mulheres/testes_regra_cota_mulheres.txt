@@ -1,0 +1,79 @@
+﻿
+insert into partido(id_partido,nome,sigla,legenda,data_inicio)
+values (01,'X','X',01,'2012-12-12');
+
+insert into partido(id_partido,nome,sigla,legenda,data_inicio)
+values (07,'Y','Y',01,'2012-12-12');
+
+insert into localidade values (01,'rio','rj');
+
+insert into zona_eleitoral values (001);
+
+insert into eleitor values (001,'Gabriel','1964-01-01',01,01,'M',001,1);
+insert into eleitor values (002,'Paulo','1964-01-01',01,01,'M',001,1);
+insert into eleitor values (003,'Eduardo','1964-01-01',01,01,'M',001,1);
+insert into eleitor values (004,'Gael','1964-01-01',01,01,'M',001,1);
+insert into eleitor values (005,'Vitor','1964-01-01',01,01,'M',001,1);
+insert into eleitor values (006,'Raul','1964-01-01',01,01,'M',001,1);
+insert into eleitor values (007,'Gustavo','1964-01-01',01,01,'M',001,1);
+insert into eleitor values (008,'Geisa','1964-01-01',01,01,'F',001,1);
+insert into eleitor values (009,'Gabriela','1964-01-01',01,01,'F',001,1);
+insert into eleitor values (010,'Gisele','1964-01-01',01,01,'F',001,1);
+insert into eleitor values (011,'Caio','1964-01-01',01,01,'M',001,1);
+insert into eleitor values (012,'Carolina','1964-01-01',01,01,'F',001,1);
+
+insert into cargo values (01,'presidente','nacional',1);
+
+insert into candidato values (007,1010,'j',01,1);
+insert into candidato values (006,1016,'a',01,1);
+insert into candidato values (005,1015,'b',01,1);
+insert into candidato values (004,1014,'c',01,1);
+insert into candidato values (003,1013,'d',01,1);
+insert into candidato values (002,1012,'e',01,1);
+insert into candidato values (001,1011,'f',01,1);
+insert into candidato values (008,1018,'g',01,1);
+insert into candidato values (009,1019,'h',01,1);
+insert into candidato values (010,1017,'i',01,1);
+
+insert into eleicoes values (01,'05-05-2016',1);
+insert into eleicoes values (02,'05-05-2017',1);
+
+insert into afiliacao values (01,001,01,'2012-12-13',NULL);
+insert into afiliacao values (11,001,01,'2012-12-12','2012-12-12');
+insert into afiliacao values (02,002,01,'2012-12-13',NULL);
+insert into afiliacao values (03,003,01,'2012-12-13',NULL);
+insert into afiliacao values (04,004,01,'2012-12-13',NULL);
+insert into afiliacao values (05,005,01,'2012-12-13',NULL);
+insert into afiliacao values (06,006,01,'2012-12-13',NULL);
+insert into afiliacao values (07,007,01,'2012-12-13',NULL);
+insert into afiliacao values (08,008,01,'2012-12-13',NULL);
+insert into afiliacao values (09,009,01,'2012-12-13',NULL);
+insert into afiliacao values (10,010,01,'2012-12-13',NULL);
+
+insert into candidatura values (001,0,01,01,001,01);
+insert into candidatura values (002,0,01,01,002,02);
+insert into candidatura values (003,0,01,01,003,03);
+insert into candidatura values (004,0,01,01,004,04);
+insert into candidatura values (005,0,01,01,005,05);
+insert into candidatura values (006,0,01,01,006,06);
+insert into candidatura values (007,0,01,01,007,07);
+insert into candidatura values (008,0,01,01,008,08);
+insert into candidatura values (009,0,01,01,009,09);
+insert into candidatura values (010,0,01,01,010,10);
+
+--teste  tabela eleitor
+--update eleitor set sexo = 'M' where n_titulo = 08;
+
+--teste tabela candidato
+--update candidato set id_partido = 007 where n_titulo = 008;
+--update candidato set n_titulo = 011 where n_titulo = 008;
+--delete from afiliacao where n_titulo = 8;
+
+--teste tabela candidatura
+--insert into candidato values (011,1111,'k',01,1);
+--insert into candidato values (012,1112,'m',01,1);
+--insert into afiliacao values (013,011,07,'2012-12-13',NULL);
+--insert into afiliacao values (012,012,07,'2012-12-13',NULL);
+--delete from candidatura where n_titulo_candidato > 008;
+--insert into candidatura values (011,0,01,01,0011,013);
+--update candidatura set id_eleicoes = 02 where n_titulo_candidato = 008;

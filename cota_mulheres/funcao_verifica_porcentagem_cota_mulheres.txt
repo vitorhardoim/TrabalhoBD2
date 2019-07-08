@@ -1,0 +1,29 @@
+﻿DROP FUNCTION percent_mulheres_gt_30(integer);
+create or replace function percent_mulheres_gt_30(id_part int, id_eleic int) returns bool as $$
+declare
+total float;
+mulheres float;
+begin
+select count(id_candidatura) into total from candidatura 
+inner join candidato on candidatura.n_titulo_candidato = candidato.n_titulo 
+inner join eleicoes on candidatura.id_eleicoes = eleicoes.id_eleicoes 
+inner join partido on candidato.id_partido = partido.id_partido where partido.id_partido = id_part and eleicoes.id_eleicoes = id_eleic;
+raise notice 'total: %', total;
+select count(id_candidatura) into mulheres from candidatura 
+inner join candidato on candidatura.n_titulo_candidato = candidato.n_titulo 
+inner join eleicoes on candidatura.id_eleicoes = eleicoes.id_eleicoes 
+inner join partido on candidato.id_partido = partido.id_partido
+inner join eleitor on eleitor.n_titulo = candidatura.n_titulo_candidato
+where eleitor.sexo = 'F' and partido.id_partido = id_part and eleicoes.id_eleicoes = id_eleic;
+raise notice 'mulheres: %', mulheres;
+if (total = 0) then return true;
+end if;
+if (mulheres/total >= 0.3) then 
+	return true;
+else
+	return false;
+end if;
+
+
+end;
+$$ language plpgsql;

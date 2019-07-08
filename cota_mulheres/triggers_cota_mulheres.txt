@@ -1,0 +1,78 @@
+﻿create or replace function eleitor_sex_change() returns trigger as $$
+declare
+id_part int;
+gt_30 bool;
+id_eleic int;
+begin
+if exists (select 1 from candidatura inner join eleitor on eleitor.n_titulo = candidatura.n_titulo_candidato where candidatura.n_titulo_candidato = new.n_titulo ) then
+	select id_partido into id_part from candidato where candidato.n_titulo = new.n_titulo;
+	select id_eleicoes into id_eleic from candidatura where candidatura.n_titulo_candidato = new.n_titulo;
+	select percent_mulheres_gt_30(id_part,id_eleic) into gt_30;
+	if (gt_30 = false) then
+		raise exception 'violacao da cota de mulheres: operacao negada';
+	end if;
+end if;
+return null;
+end;
+$$ language plpgsql;
+
+CREATE TRIGGER sex_change after UPDATE ON eleitor FOR EACH ROW EXECUTE PROCEDURE eleitor_sex_change();
+
+create or replace function cota_mulheres_candidato() returns trigger as $$
+declare
+id_part int;
+gt_30 bool;
+id_eleic int;
+begin
+if exists (select 1 from candidatura inner join candidato on candidato.n_titulo = candidatura.n_titulo_candidato where candidatura.n_titulo_candidato = new.n_titulo ) then
+	select new.id_partido into id_part from candidato where candidato.n_titulo = new.n_titulo;
+	raise notice 'Partido: %', id_part;
+	select id_eleicoes into id_eleic from candidatura where candidatura.n_titulo_candidato = new.n_titulo;
+	select percent_mulheres_gt_30(id_part, id_eleic) into gt_30;
+	raise notice 'gt_30: %', gt_30;
+	if (gt_30 = false) then
+		raise exception 'violacao da cota de mulheres: operacao negada';
+	end if;
+	select old.id_partido into id_part from candidato where candidato.n_titulo = new.n_titulo;
+	raise notice 'Partido: %', id_part;
+	select id_eleicoes into id_eleic from candidatura where candidatura.n_titulo_candidato = new.n_titulo;
+	select percent_mulheres_gt_30(id_part,id_eleic) into gt_30;
+	if (gt_30 = false) then
+		raise exception 'violacao da cota de mulheres: operacao negada';
+	end if;
+end if;
+return null;
+end;
+$$ language plpgsql;
+
+create trigger cota_mulheres_candidato_tg after update on candidato for each row execute procedure cota_mulheres_candidato();
+
+create or replace function cota_mulheres_candidatura() returns trigger as $$
+declare
+id_part int;
+gt_30 bool;
+id_eleic int;
+begin
+if(tg_op<>'DELETE') then
+	select id_partido into id_part from candidato where candidato.n_titulo = new.n_titulo_candidato;
+	raise notice 'Partido: %', id_part;
+	select new.id_eleicoes into id_eleic from candidatura where candidatura.n_titulo_candidato = new.n_titulo_candidato;
+	select percent_mulheres_gt_30(id_part, id_eleic) into gt_30;
+	if (gt_30 = false) then
+		raise exception 'violacao da cota de mulheres: operacao negada';
+	end if;
+end if;
+if(tg_op<>'INSERT') then
+	select id_partido into id_part from candidato where candidato.n_titulo = old.n_titulo_candidato;
+	raise notice 'Partido: %', id_part;
+	select old.id_eleicoes into id_eleic from candidatura where candidatura.n_titulo_candidato = old.n_titulo_candidato;
+	select percent_mulheres_gt_30(id_part, id_eleic) into gt_30;
+	if (gt_30 = false) then
+		raise exception 'violacao da cota de mulheres: operacao negada';
+	end if;
+end if;
+return null;
+end;
+$$ language plpgsql;
+
+create trigger cota_mulheres_candidatura_tg after insert or delete or update on candidatura for each row execute procedure cota_mulheres_candidatura();
