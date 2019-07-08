@@ -4,8 +4,8 @@ declare
   id_eleito integer;
 begin
   id_eleito = -1;
-  select qtd_vagas into qtd_vagas from vagas where id_eleicoes=id_eleicao and id_cargo=id_crg;
-  with t1 as (select * from candidato inner join candidatura on n_titulo=n_titulo_candidato where id_eleicoes=id_eleicao and id_cargo=id_crg ORDER BY qtd DESC),
+  select vagas.qtd_vagas into qtd_vagas from vagas where id_eleicoes=id_eleicao and id_cargo=id_crg;
+  with t1 as (select * from candidato inner join candidatura on n_titulo=n_titulo_candidato where candidatura.id_eleicoes=id_eleicao and id_cargo=id_crg ORDER BY qtd DESC),
        t2 as (select * from t1 limit qtd_vagas)
 	   select n_titulo into id_eleito from t2 where n_titulo=id_cdd;
   if id_eleito <> -1 then
@@ -15,13 +15,13 @@ begin
   end if;
 end; $$ language plpgsql;
 
-create or replace function esta_crescendo(id_partido int) returns boolean as $$
+create or replace function esta_crescendo(id_ptd int) returns boolean as $$
 declare
   e1 integer;
   e2 integer;
   e3 integer;
   e4 integer;
-  cands1 cursor (eleicao integer) for select * from candidato inner join candidatura on n_titulo_candidato=n_titulo where eleicoes_id=eleicao;
+  cands1 cursor (eleicao integer) for select * from candidato inner join candidatura on n_titulo_candidato=n_titulo where id_eleicoes=eleicao AND candidato.id_partido = id_ptd;
   d1 integer;
   d2 integer;
   d3 integer;
@@ -35,33 +35,39 @@ begin
   t3 = 0;
   t4 = 0;
   -- Seleciona as 4 últimas eleições e coloca a pk delas nas variaveis e1~e4.
-  select id_eleicoes into e4,e3,e2,e1 from eleicoes ORDER BY id_eleicoes DESC LIMIT 4;
+  select id_eleicoes into e4 from eleicoes ORDER BY id_eleicoes DESC LIMIT 1;
+  select id_eleicoes into e3 from eleicoes ORDER BY id_eleicoes DESC LIMIT 1 OFFSET 1;
+  select id_eleicoes into e2 from eleicoes ORDER BY id_eleicoes DESC LIMIT 1 OFFSET 2;
+  select id_eleicoes into e1 from eleicoes ORDER BY id_eleicoes DESC LIMIT 1 OFFSET 3;
+  raise notice 'e1: =%, e2=%, e3=%, e4=%',e1,e2,e3,e4;
   -- Faz a contagem de eleitos do partido na eleição
   for r1 in cands1(e1) loop
+    raise notice 'candidato=%',r1.n_titulo_candidato;
     if was_elected(r1.n_titulo_candidato,e1, r1.id_cargo) then
+      raise notice 'eleito';
       t1 = t1 + 1;
     end if;
   end loop;
   for r1 in cands1(e2) loop
     if was_elected(r1.n_titulo_candidato,e2, r1.id_cargo) then
-      t1 = t1 + 1;
+      t2 = t2 + 1;
     end if;
   end loop;
   for r1 in cands1(e3) loop
     if was_elected(r1.n_titulo_candidato,e3, r1.id_cargo) then
-      t1 = t1 + 1;
+      t3 = t3 + 1;
     end if;
   end loop;
   for r1 in cands1(e4) loop
     if was_elected(r1.n_titulo_candidato,e4, r1.id_cargo) then
-      t1 = t1 + 1;
+      t4 = t4 + 1;
     end if;
   end loop;
   -- Calcula a diferença entre as eleições
   d1 = t2-t1;
   d2 = t3-t2;
   d3 = t4-t3;
-  if d3 > d2 and d2> d1 then
+  if d3 > d2 and d2 >= d1 then
     return TRUE;
   end if;
   return FALSE;

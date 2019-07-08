@@ -117,7 +117,7 @@ PRIMARY KEY(n_titulo, id_partido, data_inicio)
 
 DROP TABLE IF EXISTS candidatura CASCADE; 
 CREATE TABLE IF NOT EXISTS candidatura ( 
-id_candidatura int NOT NULL,
+id_candidatura SERIAL,
 qtd int DEFAULT NULL, 
 codigo_zona_eleitoral int NOT NULL REFERENCES zona_eleitoral(codigo), 
 id_eleicoes int NOT NULL REFERENCES eleicoes(id_eleicoes), 
@@ -140,5 +140,6 @@ CREATE TABLE IF NOT EXISTS vagas(
   id_vagas SERIAL,
   id_cargo int not null REFERENCES cargo(id_cargo),
   id_eleicoes int not null REFERENCES eleicoes(id_eleicoes),
+  qtd_vagas int not null,
   PRIMARY KEY(id_vagas)
 );

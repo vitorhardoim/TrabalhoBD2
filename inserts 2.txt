@@ -1,0 +1,82 @@
+insert into eleicoes(data_eleicao,turno) values
+('2012-06-07 00:00:00', 1),
+('2014-06-07 00:00:00', 1),
+('2016-06-07 00:00:00', 1),
+('2018-06-07 00:00:00', 1);
+
+insert into localidade(cep, municipio,UF) values
+(22030050, 'Rio de Janeiro', 'RJ');
+
+insert into zona_eleitoral(codigo) values
+(1);
+
+insert into eleitor(n_titulo, nome, data_nascimento, cep, endereco, sexo, codigo_zona, esta_ativo) values
+(123456, 'abcde', '1990-01-01', 22030050, 5, 'M', 1, 1),
+(123457, 'abcda', '1990-01-01', 22030050, 5, 'F', 1, 1),
+(123458, 'ebcde', '1990-01-01', 22030050, 5, 'F', 1, 1),
+(123459, 'abcdd', '1990-01-01', 22030050, 5, 'M', 1, 1),
+(123460, 'abcdf', '1990-01-01', 22030050, 5, 'F', 1, 1),
+(123461, 'bbbbb', '1990-01-01', 22030050, 5, 'M', 1, 1),
+(123462, 'aaaaa', '1990-01-01', 22030050, 5, 'F', 1, 1);
+
+insert into partido(nome,sigla,legenda, data_inicio) values
+('Partido Top', 'PT', 51, '1990-01-01 00:00:00'),
+('Partido Legal', 'PL', 52, '1990-01-01 00:00:00'),
+('Partido Mais ou Menos', 'PMM', 53, '1990-01-01 00:00:00');
+
+insert into cargo(titulo,esfera, n_vagas) values
+('Deputado federal', 'federal', 1);
+
+insert into vagas(id_eleicoes,id_cargo, qtd_vagas) values
+(1,1,2),
+(2,1,2),
+(3,1,3),
+(4,1,4);
+
+insert into candidato(n_titulo, numero,id_cargo, apelido,id_partido) values
+(123456, 51000, 1, 'abcde', 1),
+(123457, 52000, 1, 'abcda', 2),
+(123458, 53000, 1, 'ebcde', 3),
+(123459, 51001, 1, 'abcdd', 1),
+(123460, 52001, 1, 'abcdf', 2),
+(123461, 51002, 1, 'bbbbb', 1),
+(123462, 51003, 1, 'aaaaa', 1);
+
+insert into afiliacao(n_titulo, id_partido,data_inicio) values
+(123456, 1, '2010-01-01 00:00:00'),
+(123457, 2, '2010-01-01 00:00:00'),
+(123458, 3, '2010-01-01 00:00:00'),
+(123459, 1, '2010-01-01 00:00:00'),
+(123460, 2, '2010-01-01 00:00:00'),
+(123461, 1, '2010-01-01 00:00:00'),
+(123462, 1, '2010-01-01 00:00:00');
+
+insert into candidatura(qtd, codigo_zona_eleitoral, id_eleicoes, n_titulo_candidato, id_afiliacao) values
+(0, 1, 1, 123456, 1),
+(2, 1, 1, 123457, 2),
+(2, 1, 1, 123458, 3),
+(2, 1, 1, 123459, 4),
+(0, 1, 1, 123460, 5),
+(0, 1, 1, 123461, 6),
+(0, 1, 1, 123462, 7),
+(4, 1, 2, 123456, 1),
+(2, 1, 2, 123457, 2),
+(2, 1, 2, 123458, 3),
+(2, 1, 2, 123459, 4),
+(0, 1, 2, 123460, 5),
+(0, 1, 2, 123461, 6),
+(0, 1, 2, 123462, 7),
+(4, 1, 3, 123456, 1),
+(2, 1, 3, 123457, 2),
+(2, 1, 3, 123458, 3),
+(2, 1, 3, 123459, 4),
+(4, 1, 3, 123460, 5),
+(0, 1, 3, 123461, 6),
+(0, 1, 3, 123462, 7),
+(4, 1, 4, 123456, 1),
+(2, 1, 4, 123457, 2),
+(2, 1, 4, 123458, 3),
+(2, 1, 4, 123459, 4),
+(6, 1, 4, 123460, 5),
+(5, 1, 4, 123461, 6),
+(5, 1, 4, 123462, 7);

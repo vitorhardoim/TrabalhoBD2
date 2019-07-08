@@ -1,0 +1,34 @@
+update afiliacao
+set data_fim = '2016-01-01 00:00:00'
+where data_fim IS NULL;
+
+update afiliacao
+set data_inicio = '2016-01-01 00:00:00'
+where data_fim IS NULL;
+
+update afiliacao
+set data_fim = '2020-01-01 00:00:00'
+where data_fim IS NULL;
+
+update eleicoes
+set data_eleicao = '2021-01-01 00:00:00'
+where id_eleicoes = 1;
+
+update eleicoes
+set data_eleicao = '2001-01-01 00:00:00'
+where id_eleicoes = 1;
+
+update eleicoes
+set data_eleicao = '2011-01-01 00:00:00'
+where id_eleicoes = 1;
+
+insert into afiliacao(n_titulo, id_partido,data_inicio) values
+(123456, 1, '2013-01-01 00:00:00');
+
+update candidatura
+set id_afiliacao = 6
+where id_candidatura = 1;
+
+update candidatura
+set id_afiliacao = 6
+where id_candidatura = 6;

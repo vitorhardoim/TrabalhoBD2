@@ -1,20 +1,25 @@
 create or replace function funcao_afiliacao() returns trigger as $$
 declare
-  dia timestamp;
+  -- Recupera todas as eleições pras quais a afiliação foi utilizada
+  dias cursor for select * from afiliacao inner join candidatura on candidatura.id_afiliacao=afiliacao.id_afiliacao inner join eleicoes on candidatura.id_eleicoes=eleicoes.id_eleicoes where candidatura.id_afiliacao=NEW.id_afiliacao;
 begin
-  -- Recupera o dia da eleição
-  select data_eleicao into dia from afiliacao inner join candidatura on candidatura.id_afiliacao=afiliacao.id_afiliacao inner join eleicoes on candidatura.id_eleicoes=eleicoes.id_eleicoes where id_afiliacao=NEW.id_afiliacao;
-  if (NEW.data_fim <> null AND NEW.data_fim < dia) then
-    -- Verifica se o novo fim da filiação associada à candidatura acontecerá após o dia da eleição e não deixa alterar a tabela caso sim
-    raise exception 'Erro: Data fim da afiliação não pode ser anterior à eleição.';
-    return null;
-  elsif (NEW.data_inicio > dia) then
-    -- Verifica se a filiação associada à candidatura terá início após a data da eleição. Se sim, não altera a tabela.
-    raise exception 'Erro: Data início da afiliação não pode ser antes da eleição.';
-    return null;
-  end if;
-  --Se não passar nos testes, a tupla está dentro das restrições e pode ser salva no banco.
-  return NEW;
+  raise notice 'Começou o trigger';
+  for dia in dias loop
+    raise notice 'Dia: time=%',dia.data_eleicao;
+    if (NEW.data_fim IS NOT NULL AND NEW.data_fim < dia.data_eleicao) then
+    raise notice 'Bloqueia';
+      -- Verifica se o novo fim da filiação associada à candidatura acontecerá após o dia da eleição e não deixa alterar a tabela caso sim
+      raise exception 'Erro: Data fim da afiliação não pode ser anterior à eleição.';
+      return null;
+    elsif (NEW.data_inicio > dia.data_eleicao) then
+      raise notice 'Bloqueia';
+      -- Verifica se a filiação associada à candidatura terá início após a data da eleição. Se sim, não altera a tabela.
+      raise exception 'Erro: Data início da afiliação não pode ser antes da eleição.';
+      return null;
+    end if;
+    --Se não passar nos testes, a tupla está dentro das restrições e pode ser salva no banco.
+    return NEW;
+  end loop;
 end;$$ language plpgsql;
 
 create trigger trigger_afiliacao before insert or update on afiliacao
@@ -24,15 +29,17 @@ for each row execute procedure funcao_afiliacao();
 create or replace function funcao_eleicoes() returns trigger as $$
 declare
   --Recupera o intervalo de todas as afiliações associadas às candidaturas da eleição
-  cands cursor for select afiliacao.data_inicio, afiliacao.data_fim from candidatura inner join afiliacao on candidatura.id_afiliacao = afiliacao.id_afiliacao inner join eleicoes on candidatura.id_eleicoes = eleicoes.id_eleicoes where id_eleicoes = NEW.id;
+  cands cursor for select afiliacao.data_inicio, afiliacao.data_fim from candidatura inner join afiliacao on candidatura.id_afiliacao = afiliacao.id_afiliacao inner join eleicoes on candidatura.id_eleicoes = eleicoes.id_eleicoes where eleicoes.id_eleicoes = NEW.id_eleicoes;
 begin
+  raise notice 'Entrando no trigger';
   -- Percorre o cursor
   for r1 in cands loop
-    if (r1.data_fim <> null AND NEW.data_eleicao > r1.data_fim) then
+    raise notice 'Data nova: time=%, Data da afiliacao: time=%', NEW.data_eleicao, r1.data_fim;
+    if (r1.data_fim IS NOT NULL AND NEW.data_eleicao > r1.data_fim) then
       -- Verifica se a nova data da eleição não é maior do que o fim da data de afiliação da candidatura associada a r1
       raise exception 'Erro: Data da eleição não pode ser após o fim da filiação.';
       return null;
-    elsif (NEW.data_eleicao < data_inicio) then
+    elsif (NEW.data_eleicao < r1.data_inicio) then
       -- Verifica se a nova data da eleição é anterior ao começo de alguma afiliação associada a ela 
       raise exception 'Erro: Data da eleição não pode ser anterior ao começo de uma afiliação associada';
       return null;
@@ -52,8 +59,10 @@ declare
   dia_e timestamp;
 begin
   -- Recupera o começo e o fim da afiliação associada à candidatura e o dia da eleição associada à candidatura..
-  select afiliacao.data_inicio, afiliacao.data_fim, eleicoes.data_eleicoes into dia_i, dia_f, dia_e from afiliacao inner join candidatura on candidatura.id_afiliacao=afiliacao.id_afiliacao inner join eleicoes on candidatura.id_eleicoes=eleicoes.id_eleicoes where id_candidatura=NEW.id_candidatura;
-  if (dia_f <> null AND dia_f < dia_e) then
+  select eleicoes.data_eleicao into dia_e from afiliacao inner join candidatura on candidatura.id_afiliacao=afiliacao.id_afiliacao inner join eleicoes on candidatura.id_eleicoes=eleicoes.id_eleicoes where id_candidatura=NEW.id_candidatura;
+  select data_inicio, data_fim into dia_i,dia_f from afiliacao where afiliacao.id_afiliacao=NEW.id_afiliacao;
+  raise notice 'Início: =%, Fim: =%, Eleição: =%', dia_i, dia_f, dia_e;
+  if (dia_f IS NOT NULL AND dia_f < dia_e) then
     -- Verifica se o fim da afiliação acontece antes da eleição
     raise exception 'Erro: Data fim da afiliação não pode ser anterior à eleição.';
     return null;
